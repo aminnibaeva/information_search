@@ -11,6 +11,7 @@ from source.Searcher import Searcher
 from source.TfIdfGenerator import TfIdfGenerator
 from source.Tokenizer import Tokenizer
 
+
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
 
@@ -23,10 +24,10 @@ isHomework_5 = True
 
 def fill_link_map():
     index = {}
-    with io.open("results/index.txt", encoding='utf-8') as file:
+    with io.open("index.txt", encoding='utf-8') as file:
         for line in file.readlines():
             name_to_link = line.split(' ')
-            index[name_to_link[0].replace(".", "")] = name_to_link[2].replace("\n", "")
+            index[name_to_link[0].replace(".", "")] = name_to_link[1].replace("\n", "")
 
     directory = "output/data"
     files = Path(directory).glob('lemmas*')

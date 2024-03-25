@@ -60,7 +60,7 @@ class Tokenizer:
         return tokens, lemmas, tokens2, lemmas2
 
     def get_lemmas_to_files(self, directory):
-        files = Path(directory).glob('*.html')
+        files = Path(directory).glob('*.txt')
         lemma_to_files = {}
         it = 0
         for filename in files:

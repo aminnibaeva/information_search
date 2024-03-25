@@ -1,7 +1,7 @@
 
 //adjust footer bottom
 // function ct() {
-// 	return document.compatMode === "BackCompat" ? document.body.clientHeight : document.documentElement.clientHeight;
+// 	return document.compatMode == "BackCompat" ? document.body.clientHeight : document.documentElement.clientHeight;
 // }
 // var f = document.getElementById('footer');
 // (window.onresize = function () {
@@ -15,7 +15,7 @@ $('#searchBtn').click(function() {
 });
 	// press enter
 $('#inputField').keydown(function(e){
-	if (e.keyCode === 13) {
+	if (e.keyCode == 13) {
 	 search()
 	}
 });
@@ -23,7 +23,7 @@ $('#inputField').keydown(function(e){
 // go backend to search
 function search() {
 	var q = $('#inputField').val();
-	if (q === "" || q == null) {
+	if (q == "" || q == null || q == undefined) {
 		location.href='/';
 	} else {
 		//parse special char

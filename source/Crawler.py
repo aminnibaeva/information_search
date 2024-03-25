@@ -1,65 +1,92 @@
+from bs4 import BeautifulSoup
+from bs4.element import Comment
+
 import os
 import shutil
 import urllib.request
 
-from bs4 import BeautifulSoup
+
+def tag_visible(element):
+    if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
+        return False
+    if isinstance(element, Comment):
+        return False
+    return True
 
 
-class WebCrawler:
+def get_html(url):
+    response = urllib.request.urlopen(url)
+    return response.read()
+
+
+class Crawler:
 
     def __init__(self,
-                 starting_url,
-                 max_page_count=100,
-                 output_dir="results/",
-                 output_file="index.txt"):
-        self.starting_url = starting_url
-        self.nested_link_class = "reference internal"
-        self.max_page_count = max_page_count
-        self.output_dir = output_dir
-        self.output_file = output_file
-        self.current_page_index = 0
-        self.queue = []
-        self.processed_urls = set()
+                 base_url,
+                 nested_link_class,
+                 max_pages_count=100,
+                 min_words_count=500,
+                 output_directory="output/pages/",
+                 output_filename="index.txt"):
+        self.__base_url = base_url
+        self.__nested_link_class = nested_link_class
+        self.__max_pages_count = max_pages_count
+        self.__min_words_count = min_words_count
+        self.__output_directory = output_directory
+        self.__output_filename = output_filename
+        self.__current_page_index = 0
+        self.__queue = []
+        self.__parsed_urls = set()
 
-    def initiate_crawling(self):
-        self.prepare_output_directory()
-        self.queue.append(self.starting_url)
+    def start_parsing(self):
+        self.__prepare_output_directory()
+        self.__queue.append(self.__base_url)
 
-        while self.queue and self.current_page_index < self.max_page_count:
-            url = self.queue.pop()
-            html_content = self.retrieve_html(url)
-            soup = BeautifulSoup(html_content, 'html.parser')
+        while self.__queue and self.__current_page_index < self.__max_pages_count:
+            url = self.__queue.pop()
+            html = get_html(url)
+            soup = BeautifulSoup(html, 'html.parser')
 
-            print(f'Processing {self.current_page_index} {url} ...')
+            print('Start handling %d %s ...' % (self.__current_page_index, url))
 
-            self.save_html(self.current_page_index, url, html_content)
-            self.processed_urls.add(url)
-            self.current_page_index += 1
-            nested_links = list(filter(self.is_not_processed, self.extract_nested_links(soup)))
-            self.queue.extend(nested_links)
+            if self.__check_text_size(soup):
+                self.__save_html(self.__current_page_index, url, html)
+                self.__parsed_urls.add(url)
+                self.__current_page_index += 1
+                nested_links = list(filter(self.__is_handled, self.__get_nested_links(soup)))
+                self.__queue.extend(nested_links)
 
-    def prepare_output_directory(self):
-        shutil.rmtree(self.output_dir)
-        os.mkdir(self.output_dir)
+        print("Done!")
 
-    def is_not_processed(self, url):
-        return url not in self.processed_urls
+    def __prepare_output_directory(self):
+        try:
+            shutil.rmtree(self.__output_directory)
+            os.mkdir(self.__output_directory)
+        except OSError:
+            print("Creation of the directory %s failed" % self.__output_directory)
+        else:
+            print("Successfully created the directory '%s' " % self.__output_directory)
 
-    def extract_nested_links(self, soup):
-        internal_references = soup.find_all("a", class_=self.nested_link_class)
-        links = [self.starting_url + item['href'] for item in internal_references]
+    def __is_handled(self, url):
+        return not (url in self.__parsed_urls)
+
+    def __get_nested_links(self, soup):
+        internal_references = soup.find_all("a", class_=self.__nested_link_class)
+        links = list(set([self.__base_url + item['href'] for item in internal_references]))
         return links
 
-    def save_html(self, index, url, html_content):
-        html_file_path = os.path.join(self.output_dir, f"{index}.html")
-        with open(html_file_path, "wb") as html_file:
-            html_file.write(html_content)
+    def __check_text_size(self, soup):
+        size = len(soup.text.split())
+        return size >= self.__min_words_count
 
-        output_file_path = os.path.join(self.output_dir, self.output_file)
-        with open(output_file_path, 'a') as file:
-            line = f"{index} – {url}\n"
+    def __save_html(self, index, url, html):
+        html_filename_path = self.__output_directory + str(index) + ".txt"
+        html_file = open(html_filename_path, "wb")
+        html_file.write(html)
+        html_file.close()
+
+        output_filename_path = self.__output_directory + self.__output_filename
+
+        with open(output_filename_path, 'a') as file:
+            line = str(index) + " – " + url + "\n"
             file.write(line)
-
-    def retrieve_html(self, current_url):
-        response = urllib.request.urlopen(current_url)
-        return response.read()
