@@ -32,7 +32,7 @@ def fill_link_map():
     directory = "output/data"
     files = Path(directory).glob('lemmas*')
     for filename in files:
-        normalized_filename = str(filename).replace("output/data/lemmas", "").replace(".txt", "")
+        normalized_filename = str(filename).replace("output\\data\\lemmas", "").replace(".txt", "")
         link_to_lemma_to_tfidf[index[normalized_filename]] = {}
         lemma_to_tfidf = link_to_lemma_to_tfidf[index[normalized_filename]]
         with io.open(filename, encoding='utf-8') as file:

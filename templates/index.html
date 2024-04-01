@@ -8,7 +8,6 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="/static/css/index.css" type="text/css" rel="stylesheet" >
-  <!-- <script src="http://cdn.rawgit.com/phi-jp/phina.js/v0.2.0/build/phina.js"></script> -->
 {% endblock %}
 
 {% block navbar %}
@@ -23,14 +22,6 @@
     <p style="text-align:center">
       <img src="/static/images/branding/Habr.png" alt="Google_logo" width=20%>
     </p>
-
-<!--    {% if engine_name %}-->
-<!--    <div style="display: inline;">current engine: <span class="label label-success">{{ engine_name }}</span></div>-->
-
-<!--    <button class="btn btn-success" id="thumb-btn" type="button" style="float:right;">-->
-<!--       Display thumbnail : On-->
-<!--    </button>-->
-<!--    {% endif %}-->
 
   </div>
 
@@ -61,15 +52,10 @@
     {% endif %}
 
     {% for result in results %}
-      <!-- xs-only -->
       <div class="panel container visible-xs-block">
         <a href = {{ result.link }} target="_blank" >
-<!--          <h3>{{ result.title|safe }}</h3>-->
         </a>
-<!--        <p id="r_link">{{ result.displayLink|safe }}</p>-->
-<!--        <p id="r_snippet">{{ result.snippet|safe }}</p>-->
       </div>
-      <!-- md&lg-only -->
       <div class="panel container visible-lg-block visible-md-block">
         <h4>Результат поиска:</h4>
         <h5><a href = {{ result.link }} target="_blank" >
@@ -99,8 +85,6 @@
   </table>
 </div>
 {% endif %}
-
-<!-- <script src='/static/js/piko.js'></script> -->
 
 {% endblock %}
 
